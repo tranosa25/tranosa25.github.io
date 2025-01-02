@@ -10,26 +10,85 @@
       font-family: 'Roboto', sans-serif;
       margin: 0;
       padding: 0;
-      text-align: center;
       background-color: #f4f4f4;
       color: #333;
     }
+
+    /* Header */
     header {
-      background-color: #333;
+      background: linear-gradient(135deg, #6a11cb, #2575fc);
       color: #fff;
-      padding: 20px;
+      padding: 40px 20px;
+      text-align: center;
     }
+
     header h1 {
       margin: 0;
-      font-size: 2.5rem;
+      font-size: 3rem;
+      font-weight: 700;
     }
+
+    header p {
+      margin: 10px 0 0;
+      font-size: 1.2rem;
+      font-weight: 300;
+    }
+
+    /* Section Styling */
     section {
-      margin: 20px auto;
-      max-width: 800px;
-      text-align: left;
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 20px;
+      background-color: #fff;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
     }
+
+    section h2 {
+      color: #2575fc;
+      font-size: 2rem;
+      margin-bottom: 10px;
+      border-bottom: 2px solid #6a11cb;
+      display: inline-block;
+      padding-bottom: 5px;
+    }
+
+    section p {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: #555;
+    }
+
+    section ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    section ul li {
+      margin: 10px 0;
+    }
+
+    section ul li a {
+      text-decoration: none;
+      color: #2575fc;
+      font-weight: 500;
+    }
+
+    section ul li a:hover {
+      text-decoration: underline;
+    }
+
+    /* Footer Styling */
     footer {
-      margin-top: 20px;
+      text-align: center;
+      padding: 20px;
+      background-color: #333;
+      color: #fff;
+      margin-top: 40px;
+    }
+
+    footer p {
+      margin: 0;
       font-size: 0.9rem;
     }
   </style>
@@ -37,6 +96,7 @@
 <body>
   <header>
     <h1>Welcome to Tranosa's Portfolio</h1>
+    <p>Solutions Specialist | Tech Enthusiast</p>
   </header>
   <section>
     <h2>About Me</h2>
@@ -51,7 +111,7 @@
     <p>Email: <a href="mailto:tranosa2511@gmail.com">tranosa2511@gmail.com</a></p>
   </section>
   <footer>
-    © 2025 Tranosa. All rights reserved.
+    <p>© 2025 Tranosa. All rights reserved.</p>
   </footer>
 </body>
 </html>
