@@ -158,16 +158,18 @@
             <div class="grid-3">
                 <div class="form-group">
                     <label>1. Gói Internet (Net)</label>
-                    <select id="sub_Net" multiple style="height: 120px;" onchange="handleNetChange()"></select>
+                    <!-- Đã bỏ multiple và style height -->
+                    <select id="sub_Net" onchange="handleNetChange()"></select>
                 </div>
                 <div class="form-group">
                     <label>2. Gói FPT Play</label>
-                    <select id="sub_Play" multiple style="height: 120px;" onchange="searchBySubServices()"></select>
+                    <select id="sub_Play" onchange="searchBySubServices()"></select>
                 </div>
                 <div class="form-group">
                     <label>3. Gói Camera / Cloud</label>
-                    <select id="sub_Cam" multiple style="height: 120px;" onchange="searchBySubServices()"></select>
+                    <select id="sub_Cam" onchange="searchBySubServices()"></select>
                 </div>
+            </div>
             </div>
             <div class="form-group" id="sub_ResultWrap" style="display:none; margin-top: 10px;">
                 <label style="color:var(--fpt-orange)">Danh Sách Chính Sách Phù Hợp</label>
