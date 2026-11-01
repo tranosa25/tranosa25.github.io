@@ -540,5 +540,5 @@ function showResults(polIdObj, progIdObj) {
 }
 
 function openGeminiChat() {
-    window.open("https://share.gemini.google/oZxl24r6TXcA", "GeminiChat", "width=450,height=650,left=100,top=100,resizable=yes,scrollbars=yes");
+    window.open("https://share.gemini.google/eZITBrW4CEj1", "GeminiChat", "width=450,height=650,left=100,top=100,resizable=yes,scrollbars=yes");
 }
