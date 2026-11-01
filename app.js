@@ -67,6 +67,16 @@ function filterPoliciesByExactServices(policies, selectedServices) {
 // Thay thế hàm loadF1Policies() cũ bằng hàm này
 function loadF1Policies() {
     const selServices = getSelectedValues(document.getElementById('f1_Service'));
+    
+    // --- THÊM MỚI: Render các dịch vụ đã chọn thành các nhãn (badge) lên giao diện ---
+    const selectedContainer = document.getElementById('f1_SelectedServices');
+    if (selectedContainer) {
+        selectedContainer.innerHTML = selServices.map(srv => 
+            `<span class="badge" style="background: var(--fpt-orange); color: white; padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 11px;">${srv} ✕</span>`
+        ).join('');
+    }
+    // --------------------------------------------------------------------------------
+
     const selCusType = document.getElementById('f1_CusType').value;
     const selCusTypeL1 = document.getElementById('f1_CusTypeL1').value;
 
@@ -84,21 +94,17 @@ function loadF1Policies() {
         return matchCus && matchCusL1;
     });
 
-    renderSelect('f1_Policy', filtered, 'PolicyID', 'PolicyName', '-- Chọn Chính Sách --');
+    // Render danh sách chính sách
+    const f1PolicyEl = document.getElementById('f1_Policy');
+    if (f1PolicyEl) {
+        f1PolicyEl.innerHTML = '<option value="">-- Chọn Chính Sách --</option>';
+        filtered.forEach(item => {
+            f1PolicyEl.innerHTML += `<option value="${item.PolicyID}">${item.PolicyName}</option>`;
+        });
+    }
+    
     document.getElementById('f1_Program').innerHTML = '<option value="">-- Trống --</option>';
     document.getElementById('resultSection').classList.remove('active');
-}
-function loadPrograms(polIdObj, progIdObj) {
-    const pid = document.getElementById(polIdObj).value;
-    const progSel = document.getElementById(progIdObj);
-    
-    progSel.innerHTML = '<option value="">-- Chọn Điều Kiện / Chương Trình --</option>';
-    if (!pid) return;
-
-    const policy = rawData.find(p => p.PolicyID == pid);
-    if (policy && policy.Programs) {
-        policy.Programs.forEach(pr => { progSel.innerHTML += `<option value="${pr.ProgramID}">${pr.ProgramName}</option>`; });
-    }
 }
 
 // ==========================================
