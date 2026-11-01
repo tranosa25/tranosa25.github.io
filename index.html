@@ -99,11 +99,12 @@
                 <div class="form-group">
                     <label>Loại Dịch Vụ Chính</label>
                     <div style="font-size: 11px; color: var(--fpt-orange); margin-bottom: 5px; font-style: italic;">
-                * Chạm để tick chọn nhiều.<br>
-                                      </div>
-                    <!-- Set chiều cao 100px để người dùng biết đây là danh sách cuộn -->
+                        * Chạm/Giữ Ctrl để tick chọn nhiều.
+                    </div>
                     <select id="f1_Service" multiple style="height: 100px;" onchange="loadF1Policies()">
                     </select>
+                    <!-- KHOẢNG TRỐNG HIỂN THỊ CÁC DỊCH VỤ ĐÃ CHỌN LÀM TAGS -->
+                    <div id="f1_SelectedServices" style="margin-top: 8px; display: flex; flex-wrap: wrap; gap: 5px;"></div>
                 </div>
                 <div class="form-group">
                     <label>Phân Loại KH (CustomerTypeID)</label>
@@ -119,7 +120,6 @@
                 </div>
             </div>
             
-            <!-- PHẦN NÀY ĐÃ ĐƯỢC KHÔI PHỤC LẠI -->
             <div class="form-group">
                 <label>Chọn Chính Sách</label>
                 <select id="f1_Policy" onchange="loadPrograms('f1_Policy', 'f1_Program')">
@@ -290,8 +290,6 @@
             </div>
         </div>
     </div>
-
-
 
     <script src="app.js"></script>
 </body>
