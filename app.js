@@ -5,7 +5,7 @@ let allSubServices = { net: new Set(), play: new Set(), cam: new Set() };
 // 1. NẠP DỮ LIỆU TỪ JSON & KHỞI TẠO
 // ==========================================
 window.addEventListener('DOMContentLoaded', () => {
-    fetch('output_chinh_sach_Full.json?v=' + new Date().getTime()) 
+    fetch('output_chinh_sach.json?v=' + new Date().getTime()) 
         .then(response => {
             if (!response.ok) throw new Error("Lỗi HTTP: " + response.status);
             return response.json();
