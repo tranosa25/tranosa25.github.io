@@ -5,7 +5,7 @@ let allSubServices = { net: new Set(), play: new Set(), cam: new Set() };
 // 1. NẠP DỮ LIỆU TỪ JSON & KHỞI TẠO
 // ==========================================
 window.addEventListener('DOMContentLoaded', () => {
-    fetch('output_chinh_sach.json?v=' + new Date().getTime()) 
+    fetch('output_chinh_sach_Full.json?v=' + new Date().getTime()) 
         .then(response => {
             if (!response.ok) throw new Error("Lỗi HTTP: " + response.status);
             return response.json();
@@ -50,42 +50,41 @@ function initFilters() {
     populateSelect("f1_CusTypeL1", cusTypeL1Set);
 }
 
+// Hàm bổ trợ lấy dữ liệu selected từ thẻ select multiple
+function getSelectedValues(selectElement) {
+    if (!selectElement) return [];
+    return Array.from(selectElement.selectedOptions).map(opt => opt.value);
+}
+
 // ==========================================
 // THỰC THI TÌM THEO DỊCH VỤ (LUỒNG 1)
 // ==========================================
 function loadF1Policies() {
-    // 1. Lấy danh sách dịch vụ đã tick một cách an toàn
     const serviceSelect = document.getElementById('f1_Service');
-    if (!serviceSelect) return;
-    const selServices = Array.from(serviceSelect.selectedOptions).map(opt => opt.value.trim());
+    const selServices = getSelectedValues(serviceSelect);
     
-    // 2. Render các dịch vụ đã chọn thành Tag (Badge) lên giao diện
+    // 1. Render các dịch vụ đã chọn thành Tag (Badge) lên giao diện
     const selectedContainer = document.getElementById('f1_SelectedServices');
     if (selectedContainer) {
         selectedContainer.innerHTML = selServices.map(srv => 
-            `<span class="badge" style="background: var(--fpt-orange); color: white; padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 11px;">${srv}</span>`
+            `<span class="badge" style="background: var(--fpt-orange); color: white; padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 11px; display: inline-block; margin: 2px;">${srv}</span>`
         ).join('');
     }
 
-    // 3. Lấy giá trị bộ lọc Khách Hàng
     const cusTypeEl = document.getElementById('f1_CusType');
     const cusTypeL1El = document.getElementById('f1_CusTypeL1');
     const selCusType = cusTypeEl ? cusTypeEl.value : "";
     const selCusTypeL1 = cusTypeL1El ? cusTypeL1El.value : "";
 
-    // 4. Bắt đầu lọc dữ liệu
     let filtered = rawData || [];
     
     // Lọc KHỚP TUYỆT ĐỐI theo Dịch vụ (Đảm bảo độ chính xác cao)
     if (selServices.length > 0) {
         filtered = filtered.filter(policy => {
-            // Chuẩn hóa tên dịch vụ trong JSON (chống lỗi khoảng trắng thừa)
             const policyServices = (policy.ServiceNames || []).map(s => s.trim());
-            
-            // Điều kiện 1: Số lượng dịch vụ của chính sách phải BẰNG số lượng người dùng tick
+            // Điều kiện 1: Số lượng dịch vụ phải BẰNG số lượng tick
             if (policyServices.length !== selServices.length) return false;
-            
-            // Điều kiện 2: Các dịch vụ người dùng tick phải khớp hoàn toàn với chính sách
+            // Điều kiện 2: Các dịch vụ tick phải khớp hoàn toàn
             return selServices.every(service => policyServices.includes(service));
         });
     }
@@ -97,44 +96,48 @@ function loadF1Policies() {
         return matchCus && matchCusL1;
     });
 
-    // 5. Đổ dữ liệu ra ô Chọn Chính Sách
+    // Render danh sách chính sách bằng chuỗi HTML để tránh lỗi mobile
     const f1PolicyEl = document.getElementById('f1_Policy');
     if (f1PolicyEl) {
-        f1PolicyEl.innerHTML = '<option value="">-- Chọn Chính Sách --</option>';
+        let htmlStr = '<option value="">-- Chọn Chính Sách --</option>';
         filtered.forEach(item => {
-            f1PolicyEl.innerHTML += `<option value="${item.PolicyID}">[${item.PolicyCode}] ${item.PolicyName}</option>`;
+            htmlStr += `<option value="${item.PolicyID}">[${item.PolicyCode}] ${item.PolicyName}</option>`;
         });
+        f1PolicyEl.innerHTML = htmlStr;
     }
     
-    // Reset lại ô Chọn Chương Trình và Ẩn bảng kết quả
     const f1ProgramEl = document.getElementById('f1_Program');
-    if (f1ProgramEl) f1ProgramEl.innerHTML = '<option value="">-- Trống --</option>';
+    if (f1ProgramEl) {
+        f1ProgramEl.innerHTML = '<option value="">-- Trống --</option>';
+    }
     
     const resultSec = document.getElementById('resultSection');
     if (resultSec) resultSec.classList.remove('active');
 }
+
 function loadPrograms(polIdObj, progIdObj) {
     const pid = document.getElementById(polIdObj).value;
     const progSel = document.getElementById(progIdObj);
     
     if (!progSel) return;
 
-    // Reset danh sách (Cách an toàn 100% cho mọi trình duyệt Mobile)
-    progSel.options.length = 0; 
-    progSel.add(new Option("-- Chọn Điều Kiện / Chương Trình --", ""));
+    if (!pid) {
+        progSel.innerHTML = '<option value="">-- Chọn Điều Kiện / Chương Trình --</option>';
+        return;
+    }
 
-    if (!pid) return;
-
-    // Tìm chính sách tương ứng
     const policy = rawData.find(p => p.PolicyID.toString() === pid.toString());
     
+    // Tạo chuỗi HTML chuẩn để tránh lỗi không render trên trình duyệt Mobile
+    let htmlOptions = '<option value="">-- Chọn Điều Kiện / Chương Trình --</option>';
     if (policy && policy.Programs) {
         policy.Programs.forEach(pr => { 
-            // Dùng .add(new Option()) thay vì innerHTML += để chống lỗi mobile
-            progSel.add(new Option(pr.ProgramName, pr.ProgramID));
+            htmlOptions += `<option value="${pr.ProgramID}">${pr.ProgramName}</option>`;
         });
     }
+    progSel.innerHTML = htmlOptions;
 }
+
 // ==========================================
 // FLOW SUB: TÌM THEO GÓI CƯỚC (CÓ LỌC ĐỐI TƯỢNG)
 // ==========================================
@@ -427,9 +430,9 @@ function showResults(polIdObj, progIdObj) {
     const progId = document.getElementById(progIdObj).value;
     if (!pid || !progId) return;
 
-    const p = rawData.find(x => x.PolicyID == pid);
+    const p = rawData.find(x => x.PolicyID.toString() === pid.toString());
     if(!p) return;
-    const pr = p.Programs.find(x => x.ProgramID == progId);
+    const pr = p.Programs.find(x => x.ProgramID.toString() === progId.toString());
     if(!pr) return;
 
     document.getElementById('p_code').textContent = p.PolicyCode;
