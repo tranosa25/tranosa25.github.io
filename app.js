@@ -193,16 +193,26 @@ function filterSubServicesBase() {
 function populateMultiSelect(id, itemsSet) {
     const el = document.getElementById(id);
     if (!el) return;
-    const currentSelected = Array.from(el.selectedOptions).map(o => o.value);
-    el.innerHTML = '';
+    
+    const currentSelected = el.value; // Lấy giá trị đang chọn
+    
+    // Reset danh sách an toàn cho Mobile
+    el.options.length = 0; 
+    el.add(new Option("-- Tất cả --", "")); // Thêm dòng Tất cả
+    
     Array.from(itemsSet).sort().forEach(item => {
-        let isSelected = currentSelected.includes(item) ? 'selected' : '';
-        el.innerHTML += `<option value="${item}" ${isSelected}>${item}</option>`;
+        const opt = new Option(item, item);
+        if (item === currentSelected) {
+            opt.selected = true;
+        }
+        el.add(opt);
     });
 }
 
 function handleNetChange() {
-    const selectedNets = Array.from(document.getElementById("sub_Net").selectedOptions).map(opt => opt.value);
+    const netVal = document.getElementById("sub_Net").value;
+    const selectedNets = netVal ? [netVal] : []; // Chuyển thành mảng để giữ logic cũ
+    
     const selectedCusType = document.getElementById("sub_CusType").value;
     const selectedCusTypeL1 = document.getElementById("sub_CusTypeL1").value;
     
@@ -242,9 +252,15 @@ function handleNetChange() {
 }
 
 function searchBySubServices() {
-    const selectedNets = Array.from(document.getElementById("sub_Net").selectedOptions).map(o => o.value);
-    const selectedPlays = Array.from(document.getElementById("sub_Play").selectedOptions).map(o => o.value);
-    const selectedCams = Array.from(document.getElementById("sub_Cam").selectedOptions).map(o => o.value);
+    const netVal = document.getElementById("sub_Net").value;
+    const playVal = document.getElementById("sub_Play").value;
+    const camVal = document.getElementById("sub_Cam").value;
+    
+    // Đưa vào mảng nếu có chọn, nếu chọn "Tất cả" thì mảng rỗng
+    const selectedNets = netVal ? [netVal] : [];
+    const selectedPlays = playVal ? [playVal] : [];
+    const selectedCams = camVal ? [camVal] : [];
+    
     const selectedCusType = document.getElementById("sub_CusType").value;
     const selectedCusTypeL1 = document.getElementById("sub_CusTypeL1").value;
     
