@@ -50,44 +50,43 @@ function initFilters() {
     populateSelect("f1_CusTypeL1", cusTypeL1Set);
 }
 
-// ==========================================
-// FLOW 1: TÌM THEO DỊCH VỤ
-// ==========================================
+// Thêm hàm này ngay phía trên hàm loadF1Policies()
+// Hàm lọc đối chiếu khớp tuyệt đối số lượng và tên dịch vụ
+function filterPoliciesByExactServices(policies, selectedServices) {
+    if (!selectedServices || selectedServices.length === 0) return policies;
+    
+    return policies.filter(policy => {
+        const policyServices = policy.ServiceNames || [];
+        // Số lượng dịch vụ đã tick phải đúng bằng số lượng dịch vụ của chính sách
+        if (policyServices.length !== selectedServices.length) return false;
+        // Các dịch vụ đã tick phải nằm toàn bộ trong chính sách
+        return selectedServices.every(service => policyServices.includes(service));
+    });
+}
+
+// Thay thế hàm loadF1Policies() cũ bằng hàm này
 function loadF1Policies() {
-    // Thu thập mảng các dịch vụ đang được tô xanh
-    const selectedServices = Array.from(document.getElementById("f1_Service").selectedOptions).map(opt => opt.value);
+    const selServices = getSelectedValues(document.getElementById('f1_Service'));
+    const selCusType = document.getElementById('f1_CusType').value;
+    const selCusTypeL1 = document.getElementById('f1_CusTypeL1').value;
+
+    let filtered = rawData;
     
-    const selectedCusType = document.getElementById("f1_CusType").value;
-    const selectedCusTypeL1 = document.getElementById("f1_CusTypeL1").value;
-    const policySelect = document.getElementById("f1_Policy");
-    const programSelect = document.getElementById("f1_Program");
+    // Bước 1: Lọc theo mảng ServiceNames (áp dụng luật Khớp Tuyệt Đối)
+    if (selServices.length > 0) {
+        filtered = filterPoliciesByExactServices(filtered, selServices);
+    }
     
-    programSelect.innerHTML = '<option value="">-- Trống --</option>';
-    policySelect.innerHTML = '<option value="">-- Chọn Chính Sách --</option>';
-
-    let matchCount = 0;
-    let lastPid = null;
-
-    rawData.forEach(p => {
-        // LỌC THEO DỊCH VỤ: Chính sách phải chứa TẤT CẢ các loại dịch vụ bạn tick chọn
-        if (selectedServices.length > 0) {
-            if (!p.ServiceNames) return;
-            const hasAllSelected = selectedServices.every(srv => p.ServiceNames.includes(srv));
-            if (!hasAllSelected) return;
-        }
-
-        if (selectedCusType && (!p.CustomerTypeID || !p.CustomerTypeID.includes(selectedCusType))) return;
-        if (selectedCusTypeL1 && (!p.CusTypeL1ID || !p.CusTypeL1ID.includes(selectedCusTypeL1))) return;
-
-        policySelect.innerHTML += `<option value="${p.PolicyID}">[${p.PolicyCode}] - ${p.PolicyName}</option>`;
-        matchCount++;
-        lastPid = p.PolicyID;
+    // Bước 2: Tiếp tục lọc theo CustomerTypeID và CusTypeL1ID
+    filtered = filtered.filter(p => {
+        let matchCus = selCusType ? (p.CustomerTypeID && p.CustomerTypeID.includes(selCusType)) : true;
+        let matchCusL1 = selCusTypeL1 ? (p.CusTypeL1ID && p.CusTypeL1ID.includes(selCusTypeL1)) : true;
+        return matchCus && matchCusL1;
     });
 
-    if (matchCount === 1) {
-        policySelect.value = lastPid;
-        loadPrograms('f1_Policy', 'f1_Program');
-    }
+    renderSelect('f1_Policy', filtered, 'PolicyID', 'PolicyName', '-- Chọn Chính Sách --');
+    document.getElementById('f1_Program').innerHTML = '<option value="">-- Trống --</option>';
+    document.getElementById('resultSection').classList.remove('active');
 }
 function loadPrograms(polIdObj, progIdObj) {
     const pid = document.getElementById(polIdObj).value;
