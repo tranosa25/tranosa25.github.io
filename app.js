@@ -113,7 +113,28 @@ function loadF1Policies() {
     const resultSec = document.getElementById('resultSection');
     if (resultSec) resultSec.classList.remove('active');
 }
+function loadPrograms(polIdObj, progIdObj) {
+    const pid = document.getElementById(polIdObj).value;
+    const progSel = document.getElementById(progIdObj);
+    
+    if (!progSel) return;
 
+    // Reset danh sách (Cách an toàn 100% cho mọi trình duyệt Mobile)
+    progSel.options.length = 0; 
+    progSel.add(new Option("-- Chọn Điều Kiện / Chương Trình --", ""));
+
+    if (!pid) return;
+
+    // Tìm chính sách tương ứng
+    const policy = rawData.find(p => p.PolicyID.toString() === pid.toString());
+    
+    if (policy && policy.Programs) {
+        policy.Programs.forEach(pr => { 
+            // Dùng .add(new Option()) thay vì innerHTML += để chống lỗi mobile
+            progSel.add(new Option(pr.ProgramName, pr.ProgramID));
+        });
+    }
+}
 // ==========================================
 // FLOW SUB: TÌM THEO GÓI CƯỚC (CÓ LỌC ĐỐI TƯỢNG)
 // ==========================================
