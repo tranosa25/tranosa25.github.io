@@ -97,9 +97,9 @@
         <div id="flow1" class="flow-content active">
             <div class="grid-3">
                 <div class="form-group">
-                    <label>Loại Dịch Vụ Chính</label>
-                    <select id="f1_Service" onchange="loadF1Policies()">
-                        <option value="">-- Tất cả --</option>
+                    <label>Loại Dịch Vụ Chính (Giữ Ctrl để chọn nhiều)</label>
+                    <select id="f1_Service" multiple style="height: 90px;" onchange="loadF1Policies()">
+                        <!-- Đổ dữ liệu động từ JS -->
                     </select>
                 </div>
                 <div class="form-group">
@@ -115,19 +115,6 @@
                     </select>
                 </div>
             </div>
-            <div class="form-group">
-                <label>Chọn Chính Sách</label>
-                <select id="f1_Policy" onchange="loadPrograms('f1_Policy', 'f1_Program')">
-                    <option value="">-- Vui lòng chọn bộ lọc trước --</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Chọn Điều Kiện / Chương Trình</label>
-                <select id="f1_Program" onchange="showResults('f1_Policy', 'f1_Program')">
-                    <option value="">-- Trống --</option>
-                </select>
-            </div>
-        </div>
 
         <!-- Luồng SubService: Chọn nhiều gói cước & Phân loại KH -->
         <div id="flowSub" class="flow-content">
