@@ -50,61 +50,68 @@ function initFilters() {
     populateSelect("f1_CusTypeL1", cusTypeL1Set);
 }
 
-// Thêm hàm này ngay phía trên hàm loadF1Policies()
-// Hàm lọc đối chiếu khớp tuyệt đối số lượng và tên dịch vụ
-function filterPoliciesByExactServices(policies, selectedServices) {
-    if (!selectedServices || selectedServices.length === 0) return policies;
-    
-    return policies.filter(policy => {
-        const policyServices = policy.ServiceNames || [];
-        // Số lượng dịch vụ đã tick phải đúng bằng số lượng dịch vụ của chính sách
-        if (policyServices.length !== selectedServices.length) return false;
-        // Các dịch vụ đã tick phải nằm toàn bộ trong chính sách
-        return selectedServices.every(service => policyServices.includes(service));
-    });
-}
-
-// Thay thế hàm loadF1Policies() cũ bằng hàm này
+// ==========================================
+// THỰC THI TÌM THEO DỊCH VỤ (LUỒNG 1)
+// ==========================================
 function loadF1Policies() {
-    const selServices = getSelectedValues(document.getElementById('f1_Service'));
+    // 1. Lấy danh sách dịch vụ đã tick một cách an toàn
+    const serviceSelect = document.getElementById('f1_Service');
+    if (!serviceSelect) return;
+    const selServices = Array.from(serviceSelect.selectedOptions).map(opt => opt.value.trim());
     
-    // --- THÊM MỚI: Render các dịch vụ đã chọn thành các nhãn (badge) lên giao diện ---
+    // 2. Render các dịch vụ đã chọn thành Tag (Badge) lên giao diện
     const selectedContainer = document.getElementById('f1_SelectedServices');
     if (selectedContainer) {
         selectedContainer.innerHTML = selServices.map(srv => 
-            `<span class="badge" style="background: var(--fpt-orange); color: white; padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 11px;">${srv} ✕</span>`
+            `<span class="badge" style="background: var(--fpt-orange); color: white; padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 11px;">${srv}</span>`
         ).join('');
     }
-    // --------------------------------------------------------------------------------
 
-    const selCusType = document.getElementById('f1_CusType').value;
-    const selCusTypeL1 = document.getElementById('f1_CusTypeL1').value;
+    // 3. Lấy giá trị bộ lọc Khách Hàng
+    const cusTypeEl = document.getElementById('f1_CusType');
+    const cusTypeL1El = document.getElementById('f1_CusTypeL1');
+    const selCusType = cusTypeEl ? cusTypeEl.value : "";
+    const selCusTypeL1 = cusTypeL1El ? cusTypeL1El.value : "";
 
-    let filtered = rawData;
+    // 4. Bắt đầu lọc dữ liệu
+    let filtered = rawData || [];
     
-    // Bước 1: Lọc theo mảng ServiceNames (áp dụng luật Khớp Tuyệt Đối)
+    // Lọc KHỚP TUYỆT ĐỐI theo Dịch vụ (Đảm bảo độ chính xác cao)
     if (selServices.length > 0) {
-        filtered = filterPoliciesByExactServices(filtered, selServices);
+        filtered = filtered.filter(policy => {
+            // Chuẩn hóa tên dịch vụ trong JSON (chống lỗi khoảng trắng thừa)
+            const policyServices = (policy.ServiceNames || []).map(s => s.trim());
+            
+            // Điều kiện 1: Số lượng dịch vụ của chính sách phải BẰNG số lượng người dùng tick
+            if (policyServices.length !== selServices.length) return false;
+            
+            // Điều kiện 2: Các dịch vụ người dùng tick phải khớp hoàn toàn với chính sách
+            return selServices.every(service => policyServices.includes(service));
+        });
     }
     
-    // Bước 2: Tiếp tục lọc theo CustomerTypeID và CusTypeL1ID
+    // Lọc tiếp theo Nhóm Loại Khách Hàng
     filtered = filtered.filter(p => {
         let matchCus = selCusType ? (p.CustomerTypeID && p.CustomerTypeID.includes(selCusType)) : true;
         let matchCusL1 = selCusTypeL1 ? (p.CusTypeL1ID && p.CusTypeL1ID.includes(selCusTypeL1)) : true;
         return matchCus && matchCusL1;
     });
 
-    // Render danh sách chính sách
+    // 5. Đổ dữ liệu ra ô Chọn Chính Sách
     const f1PolicyEl = document.getElementById('f1_Policy');
     if (f1PolicyEl) {
         f1PolicyEl.innerHTML = '<option value="">-- Chọn Chính Sách --</option>';
         filtered.forEach(item => {
-            f1PolicyEl.innerHTML += `<option value="${item.PolicyID}">${item.PolicyName}</option>`;
+            f1PolicyEl.innerHTML += `<option value="${item.PolicyID}">[${item.PolicyCode}] ${item.PolicyName}</option>`;
         });
     }
     
-    document.getElementById('f1_Program').innerHTML = '<option value="">-- Trống --</option>';
-    document.getElementById('resultSection').classList.remove('active');
+    // Reset lại ô Chọn Chương Trình và Ẩn bảng kết quả
+    const f1ProgramEl = document.getElementById('f1_Program');
+    if (f1ProgramEl) f1ProgramEl.innerHTML = '<option value="">-- Trống --</option>';
+    
+    const resultSec = document.getElementById('resultSection');
+    if (resultSec) resultSec.classList.remove('active');
 }
 
 // ==========================================
