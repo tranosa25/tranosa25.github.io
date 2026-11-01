@@ -36,14 +36,15 @@ function initFilters() {
         if (p.CusTypeL1ID) p.CusTypeL1ID.split(',').forEach(t => { if (t.trim()) cusTypeL1Set.add(t.trim()); });
     });
 
-    const populateSelect = (elementId, items) => {
+    // Thêm cờ isMultiple để không in ra thẻ <option> "-- Tất cả --" cho thẻ select multiple
+    const populateSelect = (elementId, items, isMultiple = false) => {
         const el = document.getElementById(elementId);
         if (!el) return;
-        el.innerHTML = '<option value="">-- Tất cả --</option>';
+        el.innerHTML = isMultiple ? '' : '<option value="">-- Tất cả --</option>';
         Array.from(items).sort().forEach(item => { el.innerHTML += `<option value="${item}">${item}</option>`; });
     };
 
-    populateSelect("f1_Service", serviceSet);
+    populateSelect("f1_Service", serviceSet, true); // Gọi cờ true cho ô dịch vụ
     populateSelect("f1_CusType", cusTypeSet);
     populateSelect("f1_CusTypeL1", cusTypeL1Set);
 }
@@ -52,7 +53,9 @@ function initFilters() {
 // FLOW 1: TÌM THEO DỊCH VỤ
 // ==========================================
 function loadF1Policies() {
-    const selectedService = document.getElementById("f1_Service").value;
+    // Chuyển việc lấy value đơn lẻ thành mảng các selectedOptions
+    const selectedServices = Array.from(document.getElementById("f1_Service").selectedOptions).map(opt => opt.value);
+    
     const selectedCusType = document.getElementById("f1_CusType").value;
     const selectedCusTypeL1 = document.getElementById("f1_CusTypeL1").value;
     const policySelect = document.getElementById("f1_Policy");
@@ -65,7 +68,13 @@ function loadF1Policies() {
     let lastPid = null;
 
     rawData.forEach(p => {
-        if (selectedService && (!p.ServiceNames || !p.ServiceNames.includes(selectedService))) return;
+        // Kiểm tra điều kiện chứa TẤT CẢ các dịch vụ đã chọn (VD: Nếu chọn Internet + FPT Play thì CS phải có cả 2)
+        if (selectedServices.length > 0) {
+            if (!p.ServiceNames) return;
+            const hasAllSelected = selectedServices.every(srv => p.ServiceNames.includes(srv));
+            if (!hasAllSelected) return;
+        }
+
         if (selectedCusType && (!p.CustomerTypeID || !p.CustomerTypeID.includes(selectedCusType))) return;
         if (selectedCusTypeL1 && (!p.CusTypeL1ID || !p.CusTypeL1ID.includes(selectedCusTypeL1))) return;
 
@@ -74,6 +83,7 @@ function loadF1Policies() {
         lastPid = p.PolicyID;
     });
 
+    // UX Cải tiến: Nếu chỉ có 1 chính sách khớp, tự động load Chương trình
     if (matchCount === 1) {
         policySelect.value = lastPid;
         loadPrograms('f1_Policy', 'f1_Program');
