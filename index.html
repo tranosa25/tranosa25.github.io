@@ -97,9 +97,13 @@
         <div id="flow1" class="flow-content active">
             <div class="grid-3">
                 <div class="form-group">
-                    <label>Loại Dịch Vụ Chính (Giữ Ctrl để chọn nhiều)</label>
-                    <select id="f1_Service" multiple style="height: 90px;" onchange="loadF1Policies()">
-                        <!-- Đổ dữ liệu động từ JS -->
+                    <label>Loại Dịch Vụ Chính</label>
+                    <div style="font-size: 11px; color: var(--fpt-orange); margin-bottom: 5px; font-style: italic;">
+                        * Điện thoại: Chạm để tick chọn nhiều.<br>
+                        * Máy tính: Giữ Ctrl / Cmd để chọn nhiều.
+                    </div>
+                    <!-- Set chiều cao 100px để người dùng biết đây là danh sách cuộn -->
+                    <select id="f1_Service" multiple style="height: 100px;" onchange="loadF1Policies()">
                     </select>
                 </div>
                 <div class="form-group">
@@ -115,6 +119,21 @@
                     </select>
                 </div>
             </div>
+            
+            <!-- PHẦN NÀY ĐÃ ĐƯỢC KHÔI PHỤC LẠI -->
+            <div class="form-group">
+                <label>Chọn Chính Sách</label>
+                <select id="f1_Policy" onchange="loadPrograms('f1_Policy', 'f1_Program')">
+                    <option value="">-- Vui lòng chọn bộ lọc trước --</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Chọn Điều Kiện / Chương Trình</label>
+                <select id="f1_Program" onchange="showResults('f1_Policy', 'f1_Program')">
+                    <option value="">-- Trống --</option>
+                </select>
+            </div>
+        </div>
 
         <!-- Luồng SubService: Chọn nhiều gói cước & Phân loại KH -->
         <div id="flowSub" class="flow-content">
